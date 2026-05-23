@@ -1,0 +1,354 @@
+body {
+  background-color: white;
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  color: black;
+  margin-bottom: 25px;
+}
+
+h4 {
+  text-align: left;
+  margin: 0px;
+  font-weight: 500;
+}
+
+.btn-addHeader{
+  margin-left: 10px;
+  width: fit-content;
+  cursor: pointer;
+}
+
+.btn-addHeader:hover {
+  background-color: #f1f1f1;
+}
+
+.btn-addHeader:active {
+  background-color: #e6e6e6;
+}
+
+.header-key {
+  background-color: white;
+  border: 1px solid gainsboro;
+  color: black;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.header-value {
+  background-color: white;
+  border: 1px solid gainsboro;
+  color: black;
+  padding: 5px 10px;
+  border-radius: 5px;
+  flex: 1;
+}
+
+.req-body {
+  height: 18vh;
+  background-color: white;
+  border: 1px solid gainsboro;
+  border-radius: 5px;
+  color: black;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  padding: 10px;
+  margin: 10px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 10px 0px 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tabs {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 10px;
+  background: black;
+  overflow-x: auto;     /* 👈 quan trọng */
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.close-tab {
+  font-size: smaller;
+  color: black;
+  font-weight: 400;
+  text-align: center;
+  padding: 0px 5px;
+  cursor: pointer;
+}
+
+.close-tab:hover { 
+  background-color: #e6e6e6;
+  border-radius: 10px;
+}
+
+.btn-addTab {
+  width: 20px;
+  height: 18px;
+  border-radius: 25px;
+  border-width: 0px;
+  margin: 5px;
+  background-color: dodgerblue;
+  cursor: pointer;
+}
+
+.btn-addTab:hover {
+  background-color: rgb(97, 174, 250);
+}
+
+.active {
+  width: 5px;
+  height: 5px;
+  border-radius: 5px;
+  background-color: dodgerblue;
+}
+
+.tab-item{
+  background: white;
+  margin-right: 2px;
+  padding: 5px 10px;
+  max-width: 200px;
+  font-size: small;
+  color: black;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.float-btn {
+  background: #dfdede;
+  border-radius: 50px;
+  min-height: 40px;
+  border-width: 0;
+  color: dodgerblue;
+  font-weight: 700;
+}
+
+.float-container {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  margin: 10px;
+  display: flex;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 300px;
+  color: black;
+  font-weight: bold;
+}
+
+.modal-action {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn-delete-item {
+  background-color: #e6e6e6;
+  border-width: 0px;
+  border-radius: 5px;
+
+}
+
+.btn-delete-item:hover {
+  background-color: #ccc;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  border-right: 1px solid #ccc;
+  padding: 10px;
+  flex-shrink: 0;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.item-history {
+  padding: 10px;
+  border-bottom: 1px solid whitesmoke;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.item-history:hover {
+  background-color: whitesmoke;
+}
+
+.url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.method-GET {
+  color: green;
+  font-weight: bold;
+}
+
+.method-POST {
+  color: goldenrod;
+  font-weight: bold;
+}
+
+.method-PUT {
+  color: cornflowerblue;
+  font-weight: bold;
+}
+
+.method-DELETE {
+  color: crimson;
+  font-weight: bold;
+}
+
+.error-text {
+  color: red;
+  padding: 10px;
+}
+
+.success-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: black;
+  padding: 10px;
+}
+
+.response-container {
+  overflow: auto;
+  width: auto;
+  flex: 1;
+  text-align: left;
+  background: #f1f1f1;
+}
+
+.status-ok {
+  color: green;
+  background-color: greenyellow;
+  padding: 5px 10px;
+  margin: 10px;
+  font-size: medium;
+  font-weight: bold;
+  border-radius: 5px;
+  width: fit-content;
+}
+
+.status-error {
+  color: crimson;
+  background-color: darksalmon;
+  padding: 5px 10px;
+  margin: 10px;
+  font-size: medium;
+  font-weight: bold;
+  border-radius: 5px;
+  width: fit-content;
+}
+
+.status-warning {
+  color: chocolate;
+  background-color: orange;
+  padding: 5px 10px;
+  margin: 10px;
+  font-size: medium;
+  font-weight: bold;
+  border-radius: 5px;
+  width: fit-content;
+}
+
+.row-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.box {
+  display: flex;
+  flex: 1;
+  border: 1px solid rgb(144, 144, 144);
+  border-radius: 5px;
+  padding: 5px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.selection {
+  padding: 5px;
+  border-width: 0;
+  background-color: white;
+  color: black;
+  font-size: large;
+  font-weight: bolder;
+  flex-shrink: 0;
+}
+
+.input {
+  padding: 6px 10px;
+  color: black;
+  background-color: white;
+  font-size: medium;
+  border: none; /* reset hết */
+  border-left: 1px solid whitesmoke;
+  font-weight: 400;
+  flex: 1;
+}
+.input:focus {
+  outline: none;
+  border-bottom: 2px solid dodgerblue;
+  border-radius: 5px;
+}
+
+.btnSend {
+  padding: 12px 20px;
+  background-color: dodgerblue;
+  color: white;
+  font-weight: bolder;
+  font-size: large;
+  border-width: 0;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.btn-delete{
+  background-color: #dfdede;
+}
