@@ -22,7 +22,12 @@ type HistoryItem = {
   id: number;
   url: string;
   method: string;
-}
+  response: any;
+  status: number | null;
+
+  headers: HeaderItem[];
+  body: string;
+};
 
 function App() {
   const api = axiosInstance();
@@ -62,21 +67,20 @@ function App() {
   };
 
   //thêm tab
-  const addTab = () => {
+  const addTab = (item?: HistoryItem | tabItem) => {
     const newTab = {
-      id: Date.now(),
-      url: "",
-      method: "GET",
-      response: null,
-      status: null,
-
-      headers: [
+      id: item?.id || Date.now(),
+      url: item?.url || "",
+      method: item?.method || "GET",
+      response: item?.response || null,
+      status: item?.status || null,
+      headers: item?.headers || [
         {
           key: "",
           value: "",
         },
       ],
-      body: "",
+      body: item?.body || "",
     };
 
     setTabs((prev) => [...prev, newTab]);
@@ -177,12 +181,25 @@ function App() {
       });
       updateTab("response", res.data);
       updateTab("status", res.status);
+
       const newH = {
-        id: Date.now(),
+        id: tab.id,
         url: tab.url,
         method: tab.method,
+        headers: tab.headers,
+        body: tab.body,
+        response: res.data,
+        status: res.status,
       };
-      setHistory((prev) => [newH, ...prev]);
+      setHistory((prev) => {
+        const existed = prev.find((item) => item.id === tab.id);
+
+        if (existed) {
+          return prev.map((item) => (item.id === tab.id ? newH : item));
+        }
+
+        return [newH, ...prev];
+      });
     } catch (err: any) {
       updateTab("status", err.response?.status || 500);
       updateTab("response", err.response?.data?.err || err.message);
@@ -204,13 +221,27 @@ function App() {
     });
   }, [activeTabID]);
 
+  //load item history
+  const loadHistory = (item: HistoryItem) => {
+    const findItem = tabs.filter((it) => it.id === item.id);
+    if (findItem.length === 1) {
+      setActiveTabID(findItem[0].id);
+    } else {
+      addTab(item);
+    }
+  };
+
   return (
     <div className="container">
       <aside className="sidebar">
         <h2>History</h2>
         <div>
           {history.map((item) => (
-            <div key={item.id} className="item-history">
+            <div
+              key={item.id}
+              className="item-history"
+              onClick={() => loadHistory(item)}
+            >
               <span className={`method-${item.method}`}>{item.method}</span>
               <span className="url">{item.url}</span>
 
@@ -261,7 +292,7 @@ function App() {
             </div>
           ))}
 
-          <button className="btn-addTab" onClick={addTab}>
+          <button className="btn-addTab" onClick={() => addTab()}>
             +
           </button>
         </div>
