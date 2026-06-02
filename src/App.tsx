@@ -1,33 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "./services/axiosInstance";
 import "./App.css";
-
-type HeaderItem = {
-  key: string;
-  value: string;
-};
-
-type tabItem = {
-  id: number;
-  url: string;
-  method: string;
-  response: any;
-  status: number | null;
-
-  headers: HeaderItem[];
-  body: string;
-};
-
-type HistoryItem = {
-  id: number;
-  url: string;
-  method: string;
-  response: any;
-  status: number | null;
-
-  headers: HeaderItem[];
-  body: string;
-};
+import Tabs from "./components/Tabs";
+import ConfirmModal from "./components/ConfirmModal";
+import RequestSection from "./components/RequestSection";
+import HistoryList from "./components/HistoryList";
+import CollectionList from "./components/CollectonList";
+import type { Collection, HistoryItem, tabItem } from "./types";
 
 function App() {
   const api = axiosInstance();
@@ -35,10 +14,15 @@ function App() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showModal, setShowModal] = useState(false);
   const activeRef = useRef<HTMLDivElement | null>(null);
+  const [keyword, setKeyword] = useState("");
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [expand, setExpand] = useState<Record<number, boolean>>({});
+  const [activeCollectId, setActiveCollectId] = useState<number>(0);
   //tabs
   const [tabs, setTabs] = useState<tabItem[]>([
     {
       id: 1,
+      name: "New Request",
       url: "",
       method: "GET",
       response: null,
@@ -70,6 +54,7 @@ function App() {
   const addTab = (item?: HistoryItem | tabItem) => {
     const newTab = {
       id: item?.id || Date.now(),
+      name: item?.name || "New Request",
       url: item?.url || "",
       method: item?.method || "GET",
       response: item?.response || null,
@@ -141,16 +126,33 @@ function App() {
   //lấy danh sách history
   useEffect(() => {
     const saved = localStorage.getItem("history");
+    const savedCollections = localStorage.getItem("collections");
 
     if (saved) {
       setHistory(JSON.parse(saved));
     }
+
+    if (savedCollections) {
+      setCollections(JSON.parse(savedCollections));
+    }
   }, []);
+
+  //load collection
+  useEffect(() => {
+    if (collections.length > 0 && activeCollectId === 0) {
+      setActiveCollectId(collections[0].id);
+    }
+  }, [collections]);
 
   //cập nhật history vào asyncStorage
   useEffect(() => {
     localStorage.setItem("history", JSON.stringify(history));
   }, [history]);
+
+  //cập nhật collections vào asyncStorage
+  useEffect(() => {
+    localStorage.setItem("collections", JSON.stringify(collections));
+  }, [collections]);
 
   //hàm gửi request check
   const sendRequest = async () => {
@@ -184,6 +186,7 @@ function App() {
 
       const newH = {
         id: tab.id,
+        name: tab.url,
         url: tab.url,
         method: tab.method,
         headers: tab.headers,
@@ -222,7 +225,7 @@ function App() {
   }, [activeTabID]);
 
   //load item history
-  const loadHistory = (item: HistoryItem) => {
+  const loadHistory = (item: HistoryItem | tabItem) => {
     const findItem = tabs.filter((it) => it.id === item.id);
     if (findItem.length === 1) {
       setActiveTabID(findItem[0].id);
@@ -231,182 +234,99 @@ function App() {
     }
   };
 
+  //tìm kiếm lịch sử
+  const filteredHistory = history.filter(
+    (item) =>
+      item.url.toLowerCase().includes(keyword.toLowerCase()) ||
+      item.method.toLowerCase().includes(keyword.toLowerCase()),
+  );
+
+  //thêm collections
+  const addCollection = () => {
+    const newCollect: Collection = {
+      id: Date.now(),
+      name: "New Collection",
+      request: [],
+    };
+    setCollections((prev) => [...prev, newCollect]);
+  };
+
+  const updateCollection = (field: string, value: any) => {
+    setCollections((prev) =>
+      prev.map((item) =>
+        item.id === activeCollectId ? { ...item, [field]: [...value] } : item,
+      ),
+    );
+  };
+
+  const updateRequest = (collectID: number, value: tabItem) => {
+    setCollections((prev) =>
+      prev.map((item) => {
+        if (item.id !== collectID) return item;
+        const existed = item.request.find((i) => i.id === value.id);
+        return {
+          ...item,
+          request: existed
+            ? item.request.map((req) => (req.id === value.id ? value : req))
+            : [...item.request, value],
+        };
+      }),
+    );
+  };
   return (
     <div className="container">
       <aside className="sidebar">
-        <h2>History</h2>
-        <div>
-          {history.map((item) => (
-            <div
-              key={item.id}
-              className="item-history"
-              onClick={() => loadHistory(item)}
-            >
-              <span className={`method-${item.method}`}>{item.method}</span>
-              <span className="url">{item.url}</span>
+        <CollectionList
+          collections={collections}
+          expand={expand}
+          setExpand={setExpand}
+          addCollection={addCollection}
+          loadHistory={loadHistory}
+        />
 
-              <button
-                className="btn-delete-item"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(item.id);
-                }}
-              >
-                X
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="float-container">
-          <button
-            className="float-btn"
-            onClick={() => {
-              setShowModal(true);
-            }}
-          >
-            Clear All
-          </button>
-        </div>
+        <HistoryList
+          keyword={keyword}
+          setKeyword={setKeyword}
+          filteredHistory={filteredHistory}
+          loadHistory={loadHistory}
+          handleDelete={handleDelete}
+          setShowModal={setShowModal}
+        />
       </aside>
       <main className="main">
-        <div className="tabs">
-          {tabs.map((tab) => (
-            <div
-              ref={tab.id === activeTabID ? activeRef : null}
-              className={`tab-item method-${tab.method}`}
-              key={tab.id}
-              onClick={() => setActiveTabID(tab.id)}
-            >
-              {tab.id === activeTabID && <span className="active" />}
-              {tab.method}
-              <p className="url">{tab.url}</p>
-              <span
-                className="close-tab"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  closeTab(tab.id);
-                }}
-              >
-                <p>x</p>
-              </span>
-            </div>
-          ))}
-
-          <button className="btn-addTab" onClick={() => addTab()}>
-            +
-          </button>
-        </div>
-        <div className="row-container">
-          <div className={`row-container box`}>
-            <select
-              value={activeTab?.method}
-              onChange={(e) => updateTab("method", e.target.value)}
-              className="selection"
-            >
-              <option value={"GET"}>GET</option>
-              <option value={"POST"}>POST</option>
-              <option value={"PUT"}>PUT</option>
-              <option value={"DELETE"}>DELETE</option>
-            </select>
-            <input
-              placeholder="Enter URL"
-              type="text"
-              value={activeTab?.url || ""}
-              className="input"
-              onChange={(e) => updateTab("url", e.target.value)}
-            />
-          </div>
-          <button onClick={sendRequest} className="btnSend" disabled={loading}>
-            {loading ? "Sending..." : "Send"}
-          </button>
-        </div>
-        <div className="section">
-          <h4>Headers</h4>
-          {activeTab?.headers.map((item, index) => (
-            <div className="row-container" key={index}>
-              <input
-                placeholder="Key"
-                value={item.key}
-                className="header-key"
-                onChange={(e) => updateHeaders(index, "key", e.target.value)}
-              />
-
-              <input
-                placeholder="value"
-                value={item.value}
-                className="header-value"
-                onChange={(e) => updateHeaders(index, "value", e.target.value)}
-              />
-
-              {activeTab.headers.length > 1 && (
-                <button
-                  className="header-key btn-addHeader btn-delete"
-                  onClick={() => deletedHeader(index)}
-                >
-                  delete
-                </button>
-              )}
-            </div>
-          ))}
-
-          <button className="header-key btn-addHeader" onClick={addHeader}>
-            + Add Header
-          </button>
-        </div>
-        <div className="section">
-          <h4>Body</h4>
-
-          <textarea
-            className="req-body"
-            placeholder="{key: value...}"
-            disabled={activeTab?.method === "GET"}
-            value={activeTab?.body}
-            onChange={(e) => updateTab("body", e.target.value)}
-          />
-        </div>
-        {activeTab?.status && (
-          <p
-            className={`status-${activeTab.status > 300 ? (activeTab.status < 400 ? "warning" : "error") : "ok"}`}
-          >
-            {activeTab.status}
-          </p>
-        )}
-        <div className="response-container">
-          {activeTab && (
-            <pre className="success-text">
-              {JSON.stringify(activeTab?.response, null, 2)}
-            </pre>
-          )}
-        </div>
+        <Tabs
+          tabs={tabs}
+          activeTabID={activeTabID}
+          activeRef={activeRef}
+          setActiveTabID={setActiveTabID}
+          closeTab={closeTab}
+          addTab={() => addTab()}
+        />
+        <RequestSection
+          activeTab={activeTab}
+          activeCollectId={activeCollectId}
+          collections={collections}
+          setActiveCollectId={setActiveCollectId}
+          updateRequest={updateRequest}
+          updateTab={updateTab}
+          sendRequest={sendRequest}
+          loading={loading}
+          updateHeaders={updateHeaders}
+          deletedHeader={deletedHeader}
+          addHeader={addHeader}
+        />
       </main>
       {/* thông báo yes no */}
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <p>Clear All History ?</p>
-
-            <div className="modal-action">
-              <button
-                className="status-ok"
-                onClick={() => {
-                  setHistory([]);
-                  setShowModal(false);
-                }}
-              >
-                Yes
-              </button>
-              <button
-                className="status-error"
-                onClick={() => {
-                  setShowModal(false);
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        showModal={showModal}
+        onConfirm={() => {
+          setHistory([]);
+          setShowModal(false);
+        }}
+        onCancel={() => {
+          setShowModal(false);
+        }}
+      />
     </div>
   );
 }
