@@ -18,6 +18,7 @@ function App() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [expand, setExpand] = useState<Record<number, boolean>>({});
   const [activeCollectId, setActiveCollectId] = useState<number>(0);
+  const [alertRequest, setAlertRequest] = useState(false);
   //tabs
   const [tabs, setTabs] = useState<tabItem[]>([
     {
@@ -185,7 +186,7 @@ function App() {
       updateTab("status", res.status);
 
       const newH = {
-        id: tab.id,
+        id: Date.now(),
         name: tab.url,
         url: tab.url,
         method: tab.method,
@@ -194,15 +195,7 @@ function App() {
         response: res.data,
         status: res.status,
       };
-      setHistory((prev) => {
-        const existed = prev.find((item) => item.id === tab.id);
-
-        if (existed) {
-          return prev.map((item) => (item.id === tab.id ? newH : item));
-        }
-
-        return [newH, ...prev];
-      });
+      setHistory((prev) => [newH, ...prev]);
     } catch (err: any) {
       updateTab("status", err.response?.status || 500);
       updateTab("response", err.response?.data?.err || err.message);
@@ -251,10 +244,10 @@ function App() {
     setCollections((prev) => [...prev, newCollect]);
   };
 
-  const updateCollection = (field: string, value: any) => {
+  const updateCollection = (field: string, value: any, collectionId: number) => {
     setCollections((prev) =>
       prev.map((item) =>
-        item.id === activeCollectId ? { ...item, [field]: [...value] } : item,
+        item.id === collectionId ? { ...item, [field]: value } : item,
       ),
     );
   };
@@ -272,7 +265,14 @@ function App() {
         };
       }),
     );
+    setAlertRequest(true);
+    setShowModal(true);
   };
+
+  const deleteCollection = (id: number) => {
+    const newCollect = collections.filter((item) => item.id !== id);
+    setCollections(newCollect);
+  }
   return (
     <div className="container">
       <aside className="sidebar">
@@ -282,6 +282,10 @@ function App() {
           setExpand={setExpand}
           addCollection={addCollection}
           loadHistory={loadHistory}
+          updateCollection={updateCollection}
+          updateRequest={updateRequest}
+          addTab={addTab}
+          deleteCollection={deleteCollection}
         />
 
         <HistoryList
@@ -319,11 +323,17 @@ function App() {
       {/* thông báo yes no */}
       <ConfirmModal
         showModal={showModal}
+        message={alertRequest ? "Save Successfully" : "Clear All History ?"}
         onConfirm={() => {
-          setHistory([]);
+          if(alertRequest){
+            setAlertRequest(false);
+          }else{
+            setHistory([]);
+          }
           setShowModal(false);
         }}
         onCancel={() => {
+          if(alertRequest) setAlertRequest(false);
           setShowModal(false);
         }}
       />
