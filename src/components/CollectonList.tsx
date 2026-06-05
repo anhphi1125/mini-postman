@@ -8,9 +8,10 @@ type Props = {
   addCollection: () => void;
   loadHistory: (item: tabItem) => void;
   updateCollection: (field: string, value: any, collectionId: number) => void;
-  updateRequest: (collectID: number, value: tabItem) => void;
+  updateRequest: (collectID: number, value: tabItem, isDelete?: boolean) => void;
   addTab: (item?: HistoryItem | tabItem) => void;
   deleteCollection: (id: number) => void;
+  updateTabs: (field: string, value: string, tabId: number) => void;
 };
 
 function CollectionList({
@@ -22,11 +23,28 @@ function CollectionList({
   updateCollection,
   updateRequest,
   addTab,
-  deleteCollection
+  deleteCollection,
+  updateTabs,
 }: Props) {
   const [showMenu, setShowMenu] = useState<number | null>(null);
+  const [showReqMenu, setShowReqMenu] = useState<number | null>(null);
   const [updateName, setUpdateName] = useState<Record<number, boolean>>({});
+  const [updateReqName, setUpdateReqName] = useState<number | null>(null);
   const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const inputReqRefs = useRef<Record<number, HTMLInputElement | null>>({});
+
+  const updateReqItemName = (
+    collectID: number,
+    value: string,
+    request: tabItem,
+  ) => {
+    const newReq = {
+      ...request,
+      name: value,
+    };
+
+    updateRequest(collectID, newReq);
+  };
 
   useEffect(() => {
     Object.entries(updateName).forEach(([id, editing]) => {
@@ -35,6 +53,12 @@ function CollectionList({
       }
     });
   }, [updateName]);
+
+  useEffect(() => {
+    if (updateReqName) {
+      inputReqRefs.current[updateReqName]?.focus();
+    }
+  }, [updateReqName]);
 
   return (
     <>
@@ -138,24 +162,86 @@ function CollectionList({
                   >
                     Rename
                   </button>
-                  <button className="menuItem" onClick={() => {
-                    deleteCollection(item.id);
-                    setShowMenu(null);
-                  }}>Delete</button>
+                  <button
+                    className="menuItem"
+                    onClick={() => {
+                      deleteCollection(item.id);
+                      setShowMenu(null);
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               )}
 
               {expand[item.id] &&
                 item.request.length > 0 &&
                 item.request.map((req) => (
-                  <div
-                    className="requestContainer"
-                    key={req.id}
-                    onClick={() => loadHistory(req)}
-                  >
-                    <span className={`method-${req.method}`}>{req.method}</span>
+                  <div key={req.id}>
+                    <div
+                      className="requestContainer"
+                      onClick={() => loadHistory(req)}
+                    >
+                      <span className={`method-${req.method}`}>
+                        {req.method}
+                      </span>
 
-                    <span className="url">{req.name}</span>
+                      <input
+                        ref={(el) => {
+                          inputReqRefs.current[req.id] = el;
+                        }}
+                        className="collectionName reqName"
+                        value={req.name}
+                        disabled={updateReqName !== req.id}
+                        onChange={(e) =>
+                          updateReqItemName(item.id, e.target.value, req)
+                        }
+                        onBlur={(e) => {
+                          updateTabs("name", e.target.value, req.id);
+                          setUpdateReqName(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            updateTabs("name", e.currentTarget.value, req.id);
+                            setUpdateReqName(null);
+                          }
+                        }}
+                      />
+
+                      <button
+                        className="requestManagement"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowReqMenu(
+                            showReqMenu === req.id ? null : req.id,
+                          );
+                        }}
+                      >
+                        :
+                      </button>
+                    </div>
+                    {showReqMenu === req.id && (
+                      <div className="menuCollections">
+                        <button
+                          className="menuItem"
+                          onClick={() => {
+                            setUpdateReqName(req.id);
+                            setShowReqMenu(null);
+                          }}
+                        >
+                          Rename
+                        </button>
+                        <button
+                          className="menuItem"
+                          onClick={() => {
+                            updateRequest(item.id, req, true);
+                            setShowReqMenu(null);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
             </div>

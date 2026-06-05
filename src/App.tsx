@@ -51,6 +51,14 @@ function App() {
     );
   };
 
+  const updateTabs = (field: string, value: any, tabId: number) => {
+    setTabs((prev) =>
+      prev.map((tab) =>
+        tab.id === tabId ? { ...tab, [field]: value } : tab,
+      ),
+    );
+  };
+
   //thêm tab
   const addTab = (item?: HistoryItem | tabItem) => {
     const newTab = {
@@ -252,7 +260,18 @@ function App() {
     );
   };
 
-  const updateRequest = (collectID: number, value: tabItem) => {
+  const updateRequest = (collectID: number, value: tabItem, isDelete = false) => {
+    if(isDelete) {
+      setCollections((prev) => prev.map((item) => {
+        if(item.id !== collectID) return item;
+        const newR = item.request.filter((it) => it.id !== value.id);
+        return {
+          ... item,
+          request: newR,
+        }
+      }));
+      return;
+    }
     setCollections((prev) =>
       prev.map((item) => {
         if (item.id !== collectID) return item;
@@ -265,8 +284,6 @@ function App() {
         };
       }),
     );
-    setAlertRequest(true);
-    setShowModal(true);
   };
 
   const deleteCollection = (id: number) => {
@@ -286,6 +303,7 @@ function App() {
           updateRequest={updateRequest}
           addTab={addTab}
           deleteCollection={deleteCollection}
+          updateTabs={updateTabs}
         />
 
         <HistoryList
