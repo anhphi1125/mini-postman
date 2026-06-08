@@ -8,10 +8,16 @@ type Props = {
   addCollection: () => void;
   loadHistory: (item: tabItem) => void;
   updateCollection: (field: string, value: any, collectionId: number) => void;
-  updateRequest: (collectID: number, value: tabItem, isDelete?: boolean) => void;
+  updateRequest: (
+    collectID: number,
+    value: tabItem,
+    isDelete?: boolean,
+  ) => void;
   addTab: (item?: HistoryItem | tabItem) => void;
   deleteCollection: (id: number) => void;
   updateTabs: (field: string, value: string, tabId: number) => void;
+  exportCollection: (collection: Collection) => void;
+  importCollection: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 function CollectionList({
@@ -25,6 +31,8 @@ function CollectionList({
   addTab,
   deleteCollection,
   updateTabs,
+  exportCollection,
+  importCollection,
 }: Props) {
   const [showMenu, setShowMenu] = useState<number | null>(null);
   const [showReqMenu, setShowReqMenu] = useState<number | null>(null);
@@ -142,6 +150,7 @@ function CollectionList({
                           },
                         ],
                         body: "",
+                        timeResponse: null,
                       };
                       addTab(newTab);
                       updateRequest(item.id, newTab);
@@ -161,6 +170,15 @@ function CollectionList({
                     }}
                   >
                     Rename
+                  </button>
+                  <button
+                    className="menuItem"
+                    onClick={() => {
+                      exportCollection(item);
+                      setShowMenu(null);
+                    }}
+                  >
+                    Export
                   </button>
                   <button
                     className="menuItem"
@@ -249,6 +267,19 @@ function CollectionList({
         ) : (
           <p>don't have collection yet</p>
         )}
+      </div>
+      <input
+        id="import-file"
+        type="file"
+        accept=".json"
+        onChange={importCollection}
+        style={{ display: "none" }}
+      />
+
+      <div className="importContainer">
+        <label htmlFor="import-file" className="btn-SaveRequest btnImport">
+          Import Collection
+        </label>
       </div>
     </>
   );

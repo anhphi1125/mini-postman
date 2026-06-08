@@ -266,7 +266,6 @@ h4 {
   color: green;
   background-color: greenyellow;
   padding: 5px 10px;
-  margin: 10px;
   font-size: medium;
   font-weight: bold;
   border-radius: 5px;
@@ -277,7 +276,6 @@ h4 {
   color: crimson;
   background-color: darksalmon;
   padding: 5px 10px;
-  margin: 10px;
   font-size: medium;
   font-weight: bold;
   border-radius: 5px;
@@ -288,7 +286,6 @@ h4 {
   color: chocolate;
   background-color: orange;
   padding: 5px 10px;
-  margin: 10px;
   font-size: medium;
   font-weight: bold;
   border-radius: 5px;
@@ -400,19 +397,6 @@ h4 {
   border-radius: 5px;
 }
 
-.btn-SaveRequest {
-  background-color: dodgerblue;
-  color: white;
-  padding: 5px 10px;
-  border-width: 0px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.btn-SaveRequest:active{
-  background-color: rgb(21, 136, 250);
-}
-
 .collectionContainer {
   display: flex;
   justify-content: space-between;
@@ -485,6 +469,8 @@ h4 {
 
 .requestManagement {
   position: absolute;
+  color: black;
+  background-color: #f1f1f1;
   right: 0px;
   border: 0px;
   display: none;
@@ -509,4 +495,32 @@ h4 {
 
 .requestContainer:hover .reqName {
   background-color: #f1f1f1;
+}
+
+.btn-SaveRequest {
+  background-color: dodgerblue;
+  color: white;
+  padding: 5px 10px;
+  border-width: 0px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-SaveRequest:hover {
+  background-color: rgb(19, 130, 240);
+}
+
+.btn-SaveRequest:active{
+  background-color: rgb(21, 136, 250);
+}
+
+.btnImport {
+  font-size: x-small;
+  font-weight: 700;
+  padding: 0px 10px;
+}
+
+.importContainer {
+  display: flex;
+  justify-content: flex-end;
 }

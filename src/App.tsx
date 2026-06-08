@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axiosInstance from "./services/axiosInstance";
 import "./App.css";
 import Tabs from "./components/Tabs";
@@ -36,6 +36,7 @@ function App() {
         },
       ],
       body: "",
+      timeResponse: null,
     },
   ]);
 
@@ -53,9 +54,7 @@ function App() {
 
   const updateTabs = (field: string, value: any, tabId: number) => {
     setTabs((prev) =>
-      prev.map((tab) =>
-        tab.id === tabId ? { ...tab, [field]: value } : tab,
-      ),
+      prev.map((tab) => (tab.id === tabId ? { ...tab, [field]: value } : tab)),
     );
   };
 
@@ -75,6 +74,7 @@ function App() {
         },
       ],
       body: item?.body || "",
+      timeResponse: item?.timeResponse || null,
     };
 
     setTabs((prev) => [...prev, newTab]);
@@ -183,15 +183,17 @@ function App() {
           return;
         }
       }
-
+      const start = performance.now();
       const res = await api.post("/send-request", {
         url: tab.url,
         method: tab.method,
         headers: tab.headers,
         body: tab.body,
       });
+      const end = performance.now();
       updateTab("response", res.data);
       updateTab("status", res.status);
+      updateTab("timeResponse", end - start);
 
       const newH = {
         id: Date.now(),
@@ -202,6 +204,7 @@ function App() {
         body: tab.body,
         response: res.data,
         status: res.status,
+        timeResponse: end - start,
       };
       setHistory((prev) => [newH, ...prev]);
     } catch (err: any) {
@@ -252,7 +255,11 @@ function App() {
     setCollections((prev) => [...prev, newCollect]);
   };
 
-  const updateCollection = (field: string, value: any, collectionId: number) => {
+  const updateCollection = (
+    field: string,
+    value: any,
+    collectionId: number,
+  ) => {
     setCollections((prev) =>
       prev.map((item) =>
         item.id === collectionId ? { ...item, [field]: value } : item,
@@ -260,16 +267,22 @@ function App() {
     );
   };
 
-  const updateRequest = (collectID: number, value: tabItem, isDelete = false) => {
-    if(isDelete) {
-      setCollections((prev) => prev.map((item) => {
-        if(item.id !== collectID) return item;
-        const newR = item.request.filter((it) => it.id !== value.id);
-        return {
-          ... item,
-          request: newR,
-        }
-      }));
+  const updateRequest = (
+    collectID: number,
+    value: tabItem,
+    isDelete = false,
+  ) => {
+    if (isDelete) {
+      setCollections((prev) =>
+        prev.map((item) => {
+          if (item.id !== collectID) return item;
+          const newR = item.request.filter((it) => it.id !== value.id);
+          return {
+            ...item,
+            request: newR,
+          };
+        }),
+      );
       return;
     }
     setCollections((prev) =>
@@ -289,7 +302,58 @@ function App() {
   const deleteCollection = (id: number) => {
     const newCollect = collections.filter((item) => item.id !== id);
     setCollections(newCollect);
-  }
+  };
+
+  //export collection
+  const exportCollection = (collection: Collection) => {
+    const data = JSON.stringify(collection, null, 2);
+
+    const blob = new Blob([data], {
+      type: "application/json",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = `${collection.name}.json`;
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  //import collections
+  const importCollection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+
+        const newCollect = {
+          ...data,
+          id: Date.now(),
+          request: data.request.map((req: tabItem) => ({
+            ...req,
+            id: Date.now() + Math.random(),
+          })),
+        };
+
+        setCollections((prev) => [...prev, newCollect]);
+      } catch (error) {
+        setAlertRequest(true);
+        setShowModal(true);
+      }
+    };
+
+    reader.readAsText(file);
+  };
   return (
     <div className="container">
       <aside className="sidebar">
@@ -304,6 +368,8 @@ function App() {
           addTab={addTab}
           deleteCollection={deleteCollection}
           updateTabs={updateTabs}
+          exportCollection={exportCollection}
+          importCollection={importCollection}
         />
 
         <HistoryList
@@ -341,17 +407,19 @@ function App() {
       {/* thông báo yes no */}
       <ConfirmModal
         showModal={showModal}
-        message={alertRequest ? "Save Successfully" : "Clear All History ?"}
+        message={
+          alertRequest ? "Invalid collection file" : "Clear All History ?"
+        }
         onConfirm={() => {
-          if(alertRequest){
+          if (alertRequest) {
             setAlertRequest(false);
-          }else{
+          } else {
             setHistory([]);
           }
           setShowModal(false);
         }}
         onCancel={() => {
-          if(alertRequest) setAlertRequest(false);
+          if (alertRequest) setAlertRequest(false);
           setShowModal(false);
         }}
       />

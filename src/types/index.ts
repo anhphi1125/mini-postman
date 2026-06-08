@@ -12,6 +12,7 @@ export type tabItem = {
   status: number | null;
   headers: HeaderItem[];
   body: string;
+  timeResponse: number | null;
 };
 
 export type HistoryItem = {
@@ -23,6 +24,7 @@ export type HistoryItem = {
   status: number | null;
   headers: HeaderItem[];
   body: string;
+  timeResponse: number | null;
 };
 
 export type Collection = {

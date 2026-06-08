@@ -133,19 +133,24 @@ function RequestSection({
         />
       </div>
 
-      {activeTab?.status && (
-        <p
-          className={`status-${
-            activeTab.status > 300
-              ? activeTab.status < 400
-                ? "warning"
-                : "error"
-              : "ok"
-          }`}
-        >
-          {activeTab.status}
-        </p>
-      )}
+      <div className="row-container">
+        <div>
+          {activeTab?.status && (
+          <p
+            className={`status-${
+              activeTab.status > 300
+                ? activeTab.status < 400
+                  ? "warning"
+                  : "error"
+                : "ok"
+            }`}
+          >
+            {activeTab.status}
+          </p>
+        )}
+        </div>
+        <p className="header-key">{activeTab?.timeResponse ? activeTab.timeResponse.toFixed(2) : 0} m/s</p>
+      </div>
 
       <div className="response-container">
         {activeTab && (
