@@ -1,73 +1,111 @@
-# React + TypeScript + Vite
+# API Testing Tool
+🎬 Demo Video: [https://www.youtube.com/watch?v=X6lQvsOaSfE](https://www.youtube.com/watch?v=X6lQvsOaSfE)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple API testing application inspired by Postman, built with React and TypeScript. The application allows users to send HTTP requests, manage request history, and organize requests into collections.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Request Management
 
-## React Compiler
+* Send GET, POST, PUT, PATCH, DELETE requests
+* Add and remove custom headers
+* Support request body for non-GET methods
+* Validate JSON request body before sending
+* Display response status and response data
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Multi Tabs
 
-## Expanding the ESLint configuration
+* Open multiple requests in separate tabs
+* Switch between tabs without losing data
+* Close individual tabs
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### History
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+* Automatically save request history
+* Search history by URL or HTTP method
+* Delete individual history items
+* Clear all history
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Collections
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+* Create collections
+* Rename collections
+* Delete collections
+* Add requests to collections
+* Rename requests inside collections
+* Delete requests from collections
+* Expand/Collapse collection items
+
+### Import & Export
+
+* Export collections to JSON files
+* Import collections from JSON files
+
+### Local Storage
+
+* Persist request history
+* Persist collections
+* Restore data after page reload
+
+## Technologies
+
+* React
+* TypeScript
+* Axios
+* CSS
+* Local Storage
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/anhphi1125/mini-postman.git
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Install dependencies:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
+
+Start development server:
+
+```bash
+npm run dev
+```
+
+## Project Structure
+
+```text
+src/
+├── components/
+├── services/
+├── types/
+├── App.tsx
+└── main.tsx
+```
+
+## Demo Flow
+
+1. Create and send API requests
+2. Manage request headers and body
+3. View request history
+4. Create collections
+5. Add requests to collections
+6. Export and import collections
+
+## Future Improvements
+
+* Environment Variables
+* Request Authentication
+* Response Time Analytics
+* Dark Mode
+* Collection Sharing
+* Request Duplication
+
+## Author
+
+Đào Thị Ánh Phi
+
+GitHub: https://github.com/anhphi1125
